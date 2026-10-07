@@ -1,6 +1,6 @@
 {
   "name": "@deeprush/bctl",
-  "version": "26.904.223440",
+  "version": "26.1007.190727",
   "description": "Reusable Playwright contexts, shared static caching, human interaction, and remote browser control.",
   "repository": {
     "type": "git",
