@@ -36,20 +36,42 @@ if (!newer(version, pkg.version)) {
   const [a, b, c] = pkg.version.split('.').map(Number);
   version = `${a}.${b}.${c + 1}`;
 }
+const lockFile = path.join(root, 'package-lock.json');
+const lockRaw = readFileSync(lockFile, 'utf8');
+const restore = () => { writeFileSync(file, raw); writeFileSync(lockFile, lockRaw); };
 writeFileSync(file, raw.replace(`"version": "${pkg.version}"`, `"version": "${version}"`));
 console.log(`${pkg.name}: ${pkg.version} -> ${version}`);
 
 try {
+  // Keep the workspace version in the root lockfile in step, or the next npm install dirties the tree.
+  run('npm', ['install', '--package-lock-only', '--ignore-scripts']);
   run('npm', ['run', pkg.scripts?.check ? 'check' : 'test'], dir);
 } catch (error) {
-  writeFileSync(file, raw);
-  console.error('checks failed; version restored');
+  restore();
+  console.error('checks failed; version and lockfile restored');
   process.exit(1);
 }
 
 const tag = `${name}@${version}`;
-run('git', ['add', path.relative(root, file)]);
-run('git', ['commit', '-m', `release: ${tag}`]);
-run('git', ['tag', tag]);
-run('git', ['push', 'origin', 'HEAD', tag]);
-console.log(`pushed ${tag}; GitHub Actions publishes it: https://github.com/${read('gh', ['repo', 'view', '--json', 'nameWithOwner', '-q', '.nameWithOwner'])}/actions`);
+try {
+  run('git', ['add', path.relative(root, file), 'package-lock.json']);
+  run('git', ['commit', '-m', `release: ${tag}`]);
+} catch (error) {
+  run('git', ['reset', '-q', path.relative(root, file), 'package-lock.json']);
+  restore();
+  console.error('commit failed; version and lockfile restored');
+  process.exit(1);
+}
+try {
+  run('git', ['tag', tag]);
+  run('git', ['push', 'origin', 'HEAD', tag]);
+} catch (error) {
+  // Nothing was published: drop the local tag and the release commit so a rerun starts clean.
+  try { run('git', ['tag', '-d', tag]); } catch {}
+  run('git', ['reset', '--hard', 'HEAD~1']);
+  console.error(`tag or push failed; local tag ${tag} and release commit removed (if the tag reached origin, delete it there too)`);
+  process.exit(1);
+}
+let repo = 'xghini/deeprush-packages';
+try { repo = read('gh', ['repo', 'view', '--json', 'nameWithOwner', '-q', '.nameWithOwner']) || repo; } catch {}
+console.log(`pushed ${tag}; GitHub Actions publishes it: https://github.com/${repo}/actions`);
