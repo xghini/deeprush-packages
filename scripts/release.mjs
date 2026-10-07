@@ -13,7 +13,8 @@ if (!name || !existsSync(path.join(dir, 'package.json'))) {
   console.error('usage: npm run release -- <package>   (a folder under packages/)');
   process.exit(1);
 }
-const run = (cmd, args, cwd = root) => execFileSync(cmd, args, { cwd, stdio: 'inherit', shell: process.platform === 'win32' });
+// npm is npm.cmd on Windows and needs a shell; git gets no shell so arguments with spaces stay whole.
+const run = (cmd, args, cwd = root) => execFileSync(cmd, args, { cwd, stdio: 'inherit', shell: cmd === 'npm' && process.platform === 'win32' });
 const read = (cmd, args) => execFileSync(cmd, args, { cwd: root, encoding: 'utf8' }).trim();
 
 if (read('git', ['status', '--porcelain'])) {
