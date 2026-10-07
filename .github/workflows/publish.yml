@@ -1,0 +1,42 @@
+# Publishes one package when a tag `<package>@<version>` is pushed (scripts/release.mjs creates it).
+# Auth is npm trusted publishing (OIDC): no npm token is stored anywhere. Tests run locally before tagging,
+# because bctl's tests drive a real Chrome; CI only checks the tag, typechecks/builds and publishes.
+name: publish
+
+on:
+  push:
+    tags: ['*@*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Use an npm that supports trusted publishing
+        run: npm install -g npm@latest
+      - name: Resolve package from tag
+        id: pkg
+        run: |
+          tag="$GITHUB_REF_NAME"
+          name="${tag%@*}"
+          version="${tag##*@}"
+          dir="packages/$name"
+          test -f "$dir/package.json" || { echo "no package $dir"; exit 1; }
+          actual="$(node -p "require('./$dir/package.json').version")"
+          test "$actual" = "$version" || { echo "tag $version != package.json $actual"; exit 1; }
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
+      - run: npm ci
+      - name: Build
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        run: npm run build
+      - name: Publish
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        run: npm publish --access public --ignore-scripts

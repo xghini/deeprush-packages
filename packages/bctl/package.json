@@ -1,0 +1,137 @@
+{
+  "name": "@deeprush/bctl",
+  "version": "26.904.223440",
+  "description": "Reusable Playwright contexts, shared static caching, human interaction, and remote browser control.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xghini/deeprush-packages.git",
+    "directory": "packages/bctl"
+  },
+  "homepage": "https://github.com/xghini/deeprush-packages/tree/main/packages/bctl#readme",
+  "type": "module",
+  "author": "DeepRush",
+  "license": "MIT",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./context": {
+      "types": "./dist/context.d.ts",
+      "import": "./dist/context.js"
+    },
+    "./default-context": {
+      "types": "./dist/default-context.d.ts",
+      "import": "./dist/default-context.js"
+    },
+    "./shared-context-cache": {
+      "types": "./dist/shared-context-cache.d.ts",
+      "import": "./dist/shared-context-cache.js"
+    },
+    "./human": {
+      "types": "./dist/human.d.ts",
+      "import": "./dist/human.js"
+    },
+    "./context-snapshot": {
+      "types": "./dist/context-snapshot.d.ts",
+      "import": "./dist/context-snapshot.js"
+    },
+    "./page-ownership": {
+      "types": "./dist/page-ownership.d.ts",
+      "import": "./dist/page-ownership.js"
+    },
+    "./page-watch": {
+      "types": "./dist/page-watch.d.ts",
+      "import": "./dist/page-watch.js"
+    },
+    "./recaptcha": {
+      "types": "./dist/recaptcha.d.ts",
+      "import": "./dist/recaptcha.js"
+    },
+    "./interaction": {
+      "types": "./dist/interaction.d.ts",
+      "import": "./dist/interaction.js"
+    },
+    "./navigate": {
+      "types": "./dist/navigate.d.ts",
+      "import": "./dist/navigate.js"
+    },
+    "./mfa": {
+      "types": "./dist/mfa.d.ts",
+      "import": "./dist/mfa.js"
+    },
+    "./helpers": {
+      "types": "./dist/helpers.d.ts",
+      "import": "./dist/helpers.js"
+    },
+    "./utils": {
+      "types": "./dist/utils.d.ts",
+      "import": "./dist/utils.js"
+    },
+    "./bctl": {
+      "types": "./dist/bctl.d.ts",
+      "import": "./dist/bctl.js"
+    },
+    "./playwright": {
+      "types": "./dist/playwright.d.ts",
+      "import": "./dist/playwright.js"
+    },
+    "./remote": {
+      "types": "./dist/remote.d.ts",
+      "import": "./dist/remote.js"
+    },
+    "./cloudflare-cdp": {
+      "types": "./dist/cloudflare-cdp.d.ts",
+      "import": "./dist/cloudflare-cdp.js"
+    },
+    "./jsrpc": {
+      "types": "./dist/jsrpc.d.ts",
+      "import": "./dist/jsrpc.js"
+    },
+    "./jsrpc-build": {
+      "types": "./dist/jsrpc-build.d.ts",
+      "import": "./dist/jsrpc-build.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node --experimental-strip-types ./build.ts",
+    "version:calendar": "node --experimental-strip-types ./scripts/version.ts",
+    "check": "npm run typecheck && npm test && npm run build && npm pack --dry-run",
+    "prepublishOnly": "npm run check",
+    "publish:public": "npm run version:calendar && npm publish --access public",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@vitest/coverage-v8": "^4.0.16",
+    "fast-check": "^4.5.3",
+    "playwright": "^1.58.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.1"
+  },
+  "peerDependencies": {
+    "playwright": ">=1.58.0 <2"
+  },
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "keywords": []
+}

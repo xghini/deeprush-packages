@@ -1,0 +1,46 @@
+// 2026现代版tsconfig.json npm发布版
+{
+  "compilerOptions": {
+    "target": "ESNext", // 编译到最新JS语法，不做降级转换
+    "module": "NodeNext", // 使用Node.js原生ESM模块系统
+    "moduleResolution": "NodeNext", // 模块解析策略，配合module使用
+    "verbatimModuleSyntax": true, // 强制import/export type语法，避免运行时导入类型
+    "lib": ["ESNext","DOM"], // 可用的JS内置API（Promise、Map等）
+    "types": ["node"], // 自动包含@types/node类型定义
+
+    // === 类型检查（手感关键） ===
+    "strict": true, // 下列一组全部为true的开关
+    "noImplicitAny": false, // （Parameter 'x' implicitly has an 'any' type）
+    // "strictNullChecks": false, //（Object is possibly 'undefined'）
+    // "strictFunctionTypes": false, //回调函数类型不兼容
+    // "strictBindCallApply": false, //bind/call/apply参数检查 （参数类型不匹配）
+    // "strictPropertyInitialization": false, //class属性必须初始化（Property has no initializer）
+    // "noImplicitThis": false, //this 必须有明确类型 （'this' implicitly has type 'any'）
+    // "alwaysStrict": false, //禁止：1.未声明变量赋值 2.删除不可删除属性 3.重复参数名 4.this在普通函数中设为undefined 5.砍掉with
+    // "useUnknownInCatchVariables": false, //catch(e) 的 e 是 unknown 需要类型断言
+    "noUncheckedIndexedAccess": true /* 超越strict的严格，让obj[key]返回T|undefined，防止越界访问，在库项目src/ 和 test/ 开着挺好，业务代码太烦不建议开。
+        const arr = [1, 2, 3]
+        for (let i = 0; i < arr.length; i++) {
+          console.log(arr[i]!.toFixed())  // 每次都要加 ! 断言
+        }
+    */,
+
+    // === 规范 ===
+    "esModuleInterop": true, // 允许import fs from 'fs'写法
+    "resolveJsonModule": true, // 允许import json文件
+    "isolatedModules": true, // 确保每个文件可独立编译（兼容esbuild等）
+    "moduleDetection": "force", // 强制所有文件视为模块（即使没有import/export）
+    "allowImportingTsExtensions": true, // 允许import .ts
+    "skipLibCheck": true, // 跳过node_modules.内部d.ts类型检查（比如某个库的类型定义有bug也不被影响），加快编译
+    "forceConsistentCasingInFileNames": true, // 文件名大小写必须一致
+    // === 输出配置 ===
+    "declaration": true, // .d.ts
+    "declarationMap": true, // .d.ts.map，支持跳转到源码
+    "sourceMap": true, // .js.map，调试时映射回TS源码
+    "outDir": "./dist",
+    "noEmit": true, // 只做类型检查，不输出文件（用esbuild构建）
+    "rootDir": "." // 源码根目录，影响输出目录结构，但由于用了noEmit不由此tsconfig来完成输出，所以无效果。但留着也无妨
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"], // 只检查库代码和测试，业务代码用VS Code宽松检查
+  "exclude": ["node_modules", "dist"]
+}
